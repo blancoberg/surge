@@ -141,6 +141,7 @@ const int FIRoffsetI16 = FIRipolI16_N >> 1;
 //                               (dawExtraState) added to formulaEditState and wavetable: debuggerUserVariablesOpen, debuggerBuiltInVariablesOpen, debuggerFilterText, scroll, caretPosition, selectStart, selectEnd
 //                               popupOpen, popupType, popupCaseSensitive, popupWholeWord, popupText1, popupText2, popupCurrentResult. ( for saving the state of code editors )
 //                               (dawExtraState) modulationSourceButtonState - index
+//                               (in dawExtraState,FormulaEditState) debuggerGroupState - for group states in debugger
 // clang-format on
 
 const int ff_revision = 26;
@@ -970,6 +971,7 @@ struct DAWExtraStateStorage
             bool debuggerOpen{false};
             bool debuggerUserVariablesOpen{true};
             bool debuggerBuiltInVariablesOpen{true};
+            bool debuggerGroupState[8]{true, true, true, true, true, true, true, true};
             std::string debuggerFilterText{""};
             CodeEditorState codeEditor;
 

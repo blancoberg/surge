@@ -1913,16 +1913,19 @@ struct ExpandingFormulaDebugger : public juce::Component,
 
         showUser = editor->getEditState().debuggerUserVariablesOpen;
         showSystem = editor->getEditState().debuggerBuiltInVariablesOpen;
+        // showShared = editor->getEditState().debuggerSharedOpen;
 
         debugTableDataModel = std::make_unique<DebugDataModel>();
-        debugTableDataModel->showUser = showUser;
-        debugTableDataModel->showSystem = showSystem;
+        // debugTableDataModel->showUser = showUser;
+        // debugTableDataModel->showSystem = showSystem;
+
+        debugTableDataModel->setEditor(editor);
 
         debugTableDataModel.get()->onClick = [this, ed]() {
             refreshDebuggerView();
 
-            editor->getEditState().debuggerBuiltInVariablesOpen = showSystem;
-            editor->getEditState().debuggerUserVariablesOpen = showUser;
+            // editor->getEditState().debuggerBuiltInVariablesOpen = showSystem;
+            // editor->getEditState().debuggerUserVariablesOpen = showUser;
         };
 
         debugTable = std::make_unique<juce::TableListBox>("Debug", debugTableDataModel.get());
@@ -2048,7 +2051,8 @@ struct ExpandingFormulaDebugger : public juce::Component,
 
         auto f = searchfield->getText();
         auto st = Surge::Formula::createDebugDataOfModState(
-            lfoDebugger->formulastate, searchfield->getText().toStdString(), showUser, showSystem);
+            lfoDebugger->formulastate, searchfield->getText().toStdString(),
+            editor->getEditState().debuggerGroupState);
 
         if (debugTableDataModel && debugTable)
         {
@@ -2070,6 +2074,9 @@ struct ExpandingFormulaDebugger : public juce::Component,
         bool showUser = true;
         bool showSystem = true;
         std::function<void()> onClick;
+        FormulaModulatorEditor *editor;
+
+        void setEditor(FormulaModulatorEditor *ed) { editor = ed; }
 
         std::vector<Surge::Formula::DebugRow> rows;
         void setRows(const std::vector<Surge::Formula::DebugRow> &r) { rows = r; }
@@ -2082,6 +2089,14 @@ struct ExpandingFormulaDebugger : public juce::Component,
 
             if (r.isHeader == true)
             {
+                editor->getEditState().debuggerGroupState[r.headerFlag] =
+                    editor->getEditState().debuggerGroupState[r.headerFlag] == false;
+
+                std::cout << "headerflag:" << r.headerFlag << "\n";
+                /*
+                std::cout << "value after:"
+                          << editor->getEditState().debuggerGroupState[r.headerFlag] << "\n";*/
+                /*
                 if (r.headerFlag == Surge::Formula::DebugRow::User)
                 {
                     showUser = showUser == false;
@@ -2090,6 +2105,7 @@ struct ExpandingFormulaDebugger : public juce::Component,
                 {
                     showSystem = showSystem == false;
                 }
+                */
             }
             onClick();
         }
@@ -2176,6 +2192,7 @@ struct ExpandingFormulaDebugger : public juce::Component,
 
                 float arrowRotation = 0;
 
+                /*
                 if (r.isHeader && r.headerFlag == Surge::Formula::DebugRow::User)
                 {
                     arrowRotation = showUser ? M_PI : 0;
@@ -2185,6 +2202,9 @@ struct ExpandingFormulaDebugger : public juce::Component,
                 {
                     arrowRotation = showSystem ? M_PI : 0;
                 }
+                */
+
+                arrowRotation = editor->getEditState().debuggerGroupState[r.headerFlag] ? M_PI : 0;
 
                 path.applyTransform(juce::AffineTransform()
                                         .rotated(arrowRotation)
